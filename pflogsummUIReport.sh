@@ -76,8 +76,11 @@ CURRENTYEAR=$(date +'%Y')
 CURRENTMONTH=$(date +'%b')
 CURRENTDAY=$(date +"%e")
 
-$PFLOGSUMMBIN $PFLOGSUMMOPTIONS  -e $LOGFILELOCATION > /tmp/mailreport
+#Correct SRS entries
+cat $LOGFILELOCATION | sed 's/<SRS0=[^=]*=[^=]*=\([^=]*\)=\([^@]*\)@.*>/<\2@\1>/g' | sed 's/<SRS1=[^=]*=[^=]*==[^=]*=[^=]*=\([^=]*\)=\([^@]*\)@.*>/<\2@\1>/g' > /tmp/maillog
 
+#$PFLOGSUMMBIN $PFLOGSUMMOPTIONS  -e $LOGFILELOCATION > /tmp/mailreport
+$PFLOGSUMMBIN $PFLOGSUMMOPTIONS  -e /tmp/maillog > /tmp/mailreport
 
 #Extract Sections from PFLOGSUMM
 sed -n '/^Grand Totals/,/^Per-Day/p;/^Per-Day/q' /tmp/mailreport | sed -e '1,4d' | sed -e :a -e '$d;N;2,3ba' -e 'P;D' | sed '/^$/d' > /tmp/GrandTotals
